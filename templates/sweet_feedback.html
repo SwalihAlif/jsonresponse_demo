@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sweet Alert</title>
+    <!-- Include SweetAlert --> 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <h1>Submit your Feedback then get a Sweet Alert</h1>
+    <form onsubmit="submitForm(event)">
+        {% csrf_token %}
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+        
+        <label for="comment">Comment:</label>
+        <input type="comment" id="comment" name="comment" required><br><br>
+        
+        <button type="submit">Submit</button>
+    </form>
+    <!-- <p id="response"></p> no need of id response, because response will be sweet alert-->
+    
+</body>
+<script>
+    function submitForm(event) {
+        event.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const comment = document.getElementById('comment').value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch('{% url "sweet_feedback" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({name: name, comment: comment})
+        })
+        .then(response => response.json())
+        .then(data => {
+            Swal.fire({
+                title: 'Feedbak Submitted',
+                text: data.message,
+                icon: 'success'
+            });
+        })
+        .catch(error => {
+            Swal.fire({
+
+                title: 'Error',
+                text: 'There was problem submitting your feedbak',
+                icon: 'error'
+            });
+            console.error('Error:', error)
+            
+        });
+    }
+</script>
+</html>

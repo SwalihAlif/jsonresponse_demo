@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Submission</title>
+</head>
+<body>
+    <H1>Submit your Feedback</H1>
+    <form onsubmit="submitForm(event)">
+        {% csrf_token %}
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+
+        <label for="comment">Comment:</label>
+        <input type="text" name="comment" id="comment"><br><br>
+
+        <button type="submit">Submit</button>
+
+    </form>
+
+    <p id="response"></p>
+</body>
+
+<script>
+    function submitForm(event) {
+        event.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const comment = document.getElementById('comment').value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch('{% url "submit_feedback" %}', {
+            method : 'POST',
+            headers : {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({name: name, comment: comment})
+
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('response').innerText = data.message;
+        })
+        .catch(error => console.error('Error:', error));
+
+    }
+</script>
+</html>
